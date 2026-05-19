@@ -20,9 +20,22 @@ const updateJob = async (jobId, updateData) => {
   );
 };
 
+const find = async (filter) => {
+  return await Job.find(filter).sort({ createdAt: -1 });
+};
+
+const deleteJob = async (jobId) => {
+  const job = await Job.findByIdAndDelete(jobId);
+  if (!job) {
+    throw new Error("Job not found");
+  }
+  return job;
+};
 module.exports = {
   createJob,
   getJobs,
   getJobById,
-  updateJob
+  updateJob,
+  find,
+  deleteJob
 };

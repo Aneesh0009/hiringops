@@ -3,11 +3,7 @@ const router = express.Router();
 const authController = require("../controllers/authController");
 const protect = require("../middleware/authMiddleware");
 
-router.get("/me", protect, (req, res) => {
-  res.json(req.user);
-});
-
-router.get("/me", authController.getCurrentUser);
+router.get("/me", protect, authController.getCurrentUser);
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.post("/refresh", authController.refreshToken);
