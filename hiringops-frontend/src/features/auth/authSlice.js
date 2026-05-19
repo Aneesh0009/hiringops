@@ -14,7 +14,7 @@ export const loginUser = createAsyncThunk(
 
   async (userData, thunkAPI) => {
     try {
-      const response = await API.post("/api/auth/login", userData);
+      const response = await API.post("api/auth/login", userData);
 
       return response.data;
     } catch (error) {
@@ -34,6 +34,8 @@ const authSlice = createSlice({
   reducers: {
     logoutUser: (state) => {
       state.user = null;
+      state.accessToken = null;
+      setAccessToken(null);
     },
   },
 
@@ -47,13 +49,8 @@ const authSlice = createSlice({
 
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-
-        state.user = {
-          email: action.payload.email,
-        };
-
+        state.user = action.payload.user;
         state.accessToken = action.payload.accessToken;
-
         setAccessToken(action.payload.accessToken);
       })
 
@@ -68,7 +65,7 @@ const authSlice = createSlice({
 
       .addCase(loadUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        state.user = action.payload?.user ?? action.payload;
       })
 
       .addCase(loadUser.rejected, (state) => {

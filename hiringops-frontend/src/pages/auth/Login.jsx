@@ -4,7 +4,6 @@ import { loginUser, loadUser } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
-
 function Login() {
   const dispatch = useDispatch();
 
@@ -37,28 +36,18 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (user?.role === "admin") {
+      navigate("/admin");
+    }
 
-  if (user?.role === "admin") {
+    if (user?.role === "recruiter") {
+      navigate("/recruiter");
+    }
 
-    navigate("/admin");
-  }
-
-  if (user?.role === "recruiter") {
-
-    navigate("/recruiter");
-  }
-
-  if (user?.role === "candidate") {
-
-    navigate("/candidate");
-  }
-
-}, [user]);
-
-  console.log("Redux auth state:", {
-    user,
-    accessToken,
-  });
+    if (user?.role === "candidate") {
+      navigate("/candidate");
+    }
+  }, [user, accessToken, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">

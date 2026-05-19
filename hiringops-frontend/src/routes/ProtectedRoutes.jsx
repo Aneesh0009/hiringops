@@ -1,31 +1,19 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 import { useSelector } from "react-redux";
 
-function ProtectedRoute({
+function ProtectedRoute({ children, allowedRoles }) {
+  const { user } = useSelector((state) => state.auth);
 
-  children,
-  allowedRoles,
-
-}) {
-
-  const { user } = useSelector(
-    (state) => state.auth
-  );
-
-  // Not logged in
   if (!user) {
-
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
-  // Role not allowed
   if (!allowedRoles.includes(user.role)) {
-
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
-  return children;
+  return children ?? <Outlet />;
 }
 
 export default ProtectedRoute;
