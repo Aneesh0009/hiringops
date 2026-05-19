@@ -1,6 +1,8 @@
 const applicationRepository = require("../repositories/applicationRepository");
 const Job = require("../models/Job");
 const Application = require("../models/Application");
+const workflowTransitions = require("../config/workflowConfig");
+
 
 const applyToJob = async (user, jobId) => {
 
@@ -44,20 +46,6 @@ const applyToJob = async (user, jobId) => {
 
   return applicationRepository.createApplication(applicationData);
 };
-const updateStage = async (applicationId, newStage, recruiterId) => {
-  const app = await Application.findById(applicationId);
-  if (!app) {
-    throw new Error("Application not found");
-  }
-  app.currentStage = newStage;
-  app.stageHistory.push({
-    stage: newStage,
-    movedBy: recruiterId
-  });
-  await app.save();
-  return app;
-};
-
 const getMyApplications = (candidateId) => {
   return applicationRepository.getApplicationsByCandidate(candidateId);
 };
@@ -70,10 +58,50 @@ const withdrawApplication = (id, candidateId) => {
   return applicationRepository.deleteApplication(id, candidateId);
 };
 
+const moveApplicationStage = async (applicationId, recruiter, newStage) => {
+
+  const application = await Application.findOne({
+    _id: applicationId,
+    companyId: recruiter.companyId
+  });
+
+  if (!application) {
+    throw new Error("Application not found");
+  }
+
+  const currentStage = application.currentStage;
+
+  if (["Offered", "Rejected"].includes(currentStage)) {
+    throw new Error("Cannot move application after final decision");
+  }
+
+  const allowedTransitions = workflowTransitions[currentStage];
+
+  if (!allowedTransitions.includes(newStage)) {
+    throw new Error(`Invalid transition from ${currentStage} to ${newStage}`);
+  }
+
+  if (application.stageHistory.at(-1)?.stage === newStage) {
+    throw new Error("Stage already applied");
+  }
+
+  application.currentStage = newStage;
+
+  application.stageHistory.push({
+    stage: newStage,
+    movedBy: recruiter._id,
+    movedAt: new Date()
+  });
+
+  await application.save();
+
+  return application;
+};
+
 module.exports = {
   applyToJob,
   getMyApplications,
   getApplicantsForJob,
   withdrawApplication,
-  updateStage
+  moveApplicationStage
 };

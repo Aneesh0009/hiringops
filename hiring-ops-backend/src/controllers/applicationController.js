@@ -52,25 +52,34 @@ const withdraw = async (req, res) => {
   }
 };
 
-const updateStage = async (req, res) => {
+const moveStage = async (req, res) => {
+
   try {
-    const result = await applicationService.updateStage(
+
+    const { stage } = req.body;
+
+    const result = await applicationService.moveApplicationStage(
       req.params.id,
-      req.body.stage,
-      req.user._id
+      req.user,
+      stage
     );
 
     res.json(result);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
 
+  } catch (error) {
+
+    res.status(400).json({
+      message: error.message
+    });
+
+  }
+
+};
 
 module.exports = {
   applyJob,
   myApplications,
   jobApplicants,
   withdraw,
-  updateStage
+  moveStage
 };

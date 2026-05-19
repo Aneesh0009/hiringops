@@ -58,5 +58,8 @@ const applicationSchema = new mongoose.Schema(
 );
 
 applicationSchema.index({ candidateId: 1, jobId: 1 }, { unique: true });
+applicationSchema.index({ companyId: 1, currentStage: 1 });
+applicationSchema.index({ companyId: 1, appliedAt: 1 });
+applicationSchema.index({ companyId: 1, "stageHistory.movedBy": 1 });
 
 module.exports = mongoose.model("Application", applicationSchema);

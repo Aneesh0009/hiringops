@@ -39,7 +39,7 @@ const register = async (req, res) => {
       email: result.user.email,
     });
   } catch (error) {
-    res.status(400).json({ code : 400, message: error.message });
+    res.status(400).json({ code: 400, message: error.message });
   }
 };
 
@@ -61,16 +61,20 @@ const login = async (req, res) => {
 
     res.json({
       message: "Login successful",
-      email: user.email,
       accessToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        companyId: user.companyId,
+      },
     });
   } catch (error) {
-    res.status(400).json({ code : 400, message: error.message });
+    res.status(400).json({ code: 400, message: error.message });
   }
 };
 
 const logout = async (req, res) => {
-
   const token = req.cookies.refreshToken;
 
   if (!token) {
@@ -87,15 +91,24 @@ const logout = async (req, res) => {
   res.clearCookie("refreshToken");
 
   res.json({
-    message: "Logged out successfully"
+    message: "Logged out successfully",
   });
-
 };
 
+const getCurrentUser = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+};
 
 module.exports = {
   refreshToken,
   register,
   login,
-  logout
+  getCurrentUser,
+  logout,
 };

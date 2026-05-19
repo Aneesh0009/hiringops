@@ -7,6 +7,7 @@ router.get("/me", protect, (req, res) => {
   res.json(req.user);
 });
 
+router.get("/me", authController.getCurrentUser);
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.post("/refresh", authController.refreshToken);
