@@ -2,10 +2,27 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import API from "../../api/axios";
 
+const buildQueryString = (params) => {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.set(key, String(value));
+    }
+  });
+  const qs = searchParams.toString();
+  return qs ? `?${qs}` : "";
+};
+
 const initialState = {
   jobs: [],
   loading: false,
   error: null,
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  },
 };
 
 export const createJob = createAsyncThunk(
@@ -44,6 +61,20 @@ export const deleteJob = createAsyncThunk(
       await API.delete(`/api/jobs/${jobId}`);
 
       return jobId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
+    }
+  },
+);
+
+export const applyJob = createAsyncThunk(
+  "jobs/applyJob",
+
+  async (jobId, thunkAPI) => {
+    try {
+      const response = await API.post(`/api/jobs/${jobId}/apply`);
+
+      return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message);
     }
@@ -89,6 +120,14 @@ const jobSlice = createSlice({
 
         const payload = action.payload;
         state.jobs = Array.isArray(payload) ? payload : (payload?.jobs ?? []);
+        if (!Array.isArray(payload) && payload) {
+          state.pagination = {
+            page: payload.page ?? 1,
+            limit: payload.limit ?? 10,
+            total: payload.total ?? 0,
+            totalPages: payload.totalPages ?? 1,
+          };
+        }
       })
 
       .addCase(fetchJobs.rejected, (state, action) => {
@@ -135,9 +174,19 @@ const jobSlice = createSlice({
 export const fetchJobs = createAsyncThunk(
   "jobs/fetchJobs",
 
-  async (_, thunkAPI) => {
+  async (
+    { search = "", status = "All", page = 1, limit = 10 } = {},
+    thunkAPI,
+  ) => {
     try {
-      const response = await API.get("/api/jobs");
+      const query = buildQueryString({
+        search,
+        status: status === "All" ? undefined : status,
+        page,
+        limit,
+      });
+
+      const response = await API.get(`/api/jobs${query}`);
 
       return response.data;
     } catch (error) {

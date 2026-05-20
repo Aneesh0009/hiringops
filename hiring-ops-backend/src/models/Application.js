@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
+const { APPLICATION_STAGES } = require("../constants/applicationStages");
 
 const stageHistorySchema = new mongoose.Schema({
   stage: {
     type: String,
-    enum: ["Applied", "Screening", "Interview", "Offered", "Rejected"]
+    enum: APPLICATION_STAGES,
   },
   movedAt: {
     type: Date,
@@ -35,6 +36,12 @@ const applicationSchema = new mongoose.Schema(
       required: true
     },
 
+    recruiterId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+
     candidateSnapshot: {
       fullName: String,
       email: String,
@@ -43,7 +50,7 @@ const applicationSchema = new mongoose.Schema(
 
     currentStage: {
       type: String,
-      enum: ["Applied", "Screening", "Interview", "Offered", "Rejected"],
+      enum: APPLICATION_STAGES,
       default: "Applied"
     },
 
@@ -61,5 +68,6 @@ applicationSchema.index({ candidateId: 1, jobId: 1 }, { unique: true });
 applicationSchema.index({ companyId: 1, currentStage: 1 });
 applicationSchema.index({ companyId: 1, appliedAt: 1 });
 applicationSchema.index({ companyId: 1, "stageHistory.movedBy": 1 });
+applicationSchema.index({ recruiterId: 1, currentStage: 1 });
 
 module.exports = mongoose.model("Application", applicationSchema);

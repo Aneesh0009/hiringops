@@ -1,8 +1,6 @@
 const jobService = require("../services/jobService");
 
 const createJob = async (req, res) => {
-  console.log("Creating job with data:", req.body);
-
   try {
     const job = await jobService.createJob(req.body, req.user);
 
@@ -19,9 +17,9 @@ const createJob = async (req, res) => {
 
 const getJobs = async (req, res) => {
   try {
-    const jobs = await jobService.getJobs();
+    const result = await jobService.getJobs(req.query, req.user);
 
-    res.json(jobs);
+    res.json(result);
   } catch (error) {
     res.status(400).json({
       message: error.message,
@@ -56,18 +54,6 @@ const updateJob = async (req, res) => {
   }
 };
 
-const getRecruiterJobs = async (req, res) => {
-  try {
-    const jobs = await jobService.getRecruiterJobs(req.user);
-
-    res.json(jobs);
-  } catch (error) {
-    res.status(400).json({
-      message: error.message,
-    });
-  }
-};
-
 const deleteJob = async (req, res) => {
   try {
     const job = await jobService.deleteJob(req.params.id);
@@ -87,6 +73,5 @@ module.exports = {
   getJobs,
   getJobById,
   updateJob,
-  getRecruiterJobs,
-  deleteJob
+  deleteJob,
 };

@@ -23,7 +23,7 @@ const buildRecruiterPerformanceAggregation = (companyId) => {
     {
       $project: {
         _id: 0,
-        recruiter: "$recruiter.name",
+        recruiter: "$recruiter.fullName",
         applicationsProcessed: 1,
       },
     },

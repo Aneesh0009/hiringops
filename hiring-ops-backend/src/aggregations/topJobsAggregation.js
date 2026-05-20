@@ -22,12 +22,13 @@ const buildTopJobsAggregation = (companyId) => {
     },
     {
       $project: {
-        _id: "$job.title",
-        count: 1,
+        _id: 0,
+        title: "$job.title",
+        applications: "$count",
       },
     },
     {
-      $sort: { count: -1 },
+      $sort: { applications: -1 },
     },
     {
       $limit: 5,

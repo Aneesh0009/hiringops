@@ -1,29 +1,93 @@
 const Application = require("../models/Application");
 
-const createApplication = (data) => {
-  return Application.create(data);
+const applicationPopulate = [
+  { path: "candidateId", select: "fullName email" },
+  { path: "jobId", select: "title status" },
+  { path: "companyId", select: "name" },
+];
+
+const createApplication = (data) => Application.create(data);
+
+const findApplication = (candidateId, jobId) =>
+  Application.findOne({ candidateId, jobId });
+
+const findApplicationByIdForCompany = (applicationId, companyId) =>
+  Application.findOne({ _id: applicationId, companyId });
+
+const updateApplicationStage = (filter, updateData) =>
+  Application.findOneAndUpdate(filter, updateData, {
+    new: true,
+    runValidators: true,
+  })
+    .populate("candidateId", "fullName email")
+    .populate("jobId", "title")
+    .populate("companyId", "name")
+    .populate("recruiterId", "fullName email");
+
+const getApplicationsByCandidate = (candidateId) =>
+  Application.find({ candidateId })
+    .populate("jobId", "title")
+    .populate("companyId", "name")
+    .sort({ createdAt: -1 });
+
+const getApplicantsByJob = (jobId) =>
+  Application.find({ jobId })
+    .populate("candidateId", "fullName email")
+    .populate("jobId", "title")
+    .sort({ createdAt: -1 });
+
+const getApplicationsByCompany = async (companyId, options = {}) => {
+  const {
+    search = "",
+    stage,
+    page = 1,
+    limit = 10,
+  } = options;
+
+  const query = { companyId };
+
+  if (stage && stage !== "All") {
+    query.currentStage = stage;
+  }
+
+  if (search.trim()) {
+    const regex = new RegExp(search.trim(), "i");
+    query.$or = [
+      { "candidateSnapshot.fullName": regex },
+      { "candidateSnapshot.email": regex },
+    ];
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [applications, total] = await Promise.all([
+    Application.find(query)
+      .populate(applicationPopulate)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Application.countDocuments(query),
+  ]);
+
+  return {
+    applications,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
 };
 
-const findApplication = (candidateId, jobId) => {
-  return Application.findOne({ candidateId, jobId });
-};
-
-const getApplicationsByCandidate = (candidateId) => {
-  return Application.find({ candidateId }).populate("jobId");
-};
-
-const getApplicantsByJob = (jobId) => {
-  return Application.find({ jobId }).populate("candidateId");
-};
-
-const deleteApplication = (id, candidateId) => {
-  return Application.findOneAndDelete({ _id: id, candidateId });
-};
+const deleteApplication = (id, candidateId) =>
+  Application.findOneAndDelete({ _id: id, candidateId });
 
 module.exports = {
   createApplication,
   findApplication,
+  findApplicationByIdForCompany,
+  updateApplicationStage,
   getApplicationsByCandidate,
   getApplicantsByJob,
-  deleteApplication
+  getApplicationsByCompany,
+  deleteApplication,
 };

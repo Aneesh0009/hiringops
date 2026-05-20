@@ -8,11 +8,27 @@ const createJob = async (data, user) => {
     createdBy: user._id,
   };
 
-  return await jobRepository.createJob(jobData);
+  return jobRepository.createJob(jobData);
 };
 
-const getJobs = async () => {
-  return await jobRepository.getJobs({ status: "open" });
+const getJobs = async (query = {}, user = null) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+
+  const baseFilter = {};
+
+  if (user?.companyId) {
+    baseFilter.companyId = user.companyId;
+  } else {
+    baseFilter.status = "open";
+  }
+
+  return jobRepository.getJobsPaginated(baseFilter, {
+    search: query.search ?? "",
+    status: query.status,
+    page,
+    limit,
+  });
 };
 
 const getJobById = async (jobId) => {
@@ -32,11 +48,7 @@ const updateJob = async (jobId, updateData) => {
     throw new Error("Salary cannot be modified after applications exist");
   }
 
-  return await jobRepository.updateJob(jobId, updateData);
-};
-
-const getRecruiterJobs = async (user) => {
-  return await jobRepository.find({ recruiter: user._id });
+  return jobRepository.updateJob(jobId, updateData);
 };
 
 const deleteJob = async (jobId) => {
@@ -49,6 +61,5 @@ module.exports = {
   getJobs,
   getJobById,
   updateJob,
-  getRecruiterJobs,
-  deleteJob
+  deleteJob,
 };

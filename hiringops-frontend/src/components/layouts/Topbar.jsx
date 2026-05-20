@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
 import { setAccessToken } from "../../api/axios";
+import NotificationBell from "../ui/NotificationBell";
 
 const Topbar = () => {
   const { user } = useSelector((state) => state.auth);
@@ -20,7 +21,7 @@ const Topbar = () => {
 
       <div className="flex items-center gap-4">
         <span className="font-medium">{user?.fullName ?? user?.name ?? user?.email}</span>
-
+        <NotificationBell />
         <div
           className="w-10 h-10 rounded-full bg-gray-300 cursor-pointer"
           onClick={handleLogout}

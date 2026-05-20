@@ -4,10 +4,7 @@ const applyJob = async (req, res) => {
   try {
     const jobId = req.body.jobId;
 
-    const result = await applicationService.applyToJob(
-      req.user,
-      jobId
-    );
+    const result = await applicationService.applyToJob(req.user, jobId);
 
     res.status(201).json(result);
   } catch (error) {
@@ -18,7 +15,7 @@ const applyJob = async (req, res) => {
 const myApplications = async (req, res) => {
   try {
     const applications = await applicationService.getMyApplications(
-      req.user._id
+      req.user._id,
     );
 
     res.json(applications);
@@ -27,10 +24,23 @@ const myApplications = async (req, res) => {
   }
 };
 
+const recruiterApplications = async (req, res) => {
+  try {
+    const result = await applicationService.getRecruiterApplications(
+      req.user,
+      req.query,
+    );
+
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 const jobApplicants = async (req, res) => {
   try {
     const applicants = await applicationService.getApplicantsForJob(
-      req.params.jobId
+      req.params.jobId,
     );
 
     res.json(applicants);
@@ -41,10 +51,7 @@ const jobApplicants = async (req, res) => {
 
 const withdraw = async (req, res) => {
   try {
-    await applicationService.withdrawApplication(
-      req.params.id,
-      req.user._id
-    );
+    await applicationService.withdrawApplication(req.params.id, req.user._id);
 
     res.json({ message: "Application withdrawn" });
   } catch (error) {
@@ -53,33 +60,28 @@ const withdraw = async (req, res) => {
 };
 
 const moveStage = async (req, res) => {
-
   try {
-
     const { stage } = req.body;
 
     const result = await applicationService.moveApplicationStage(
       req.params.id,
       req.user,
-      stage
+      stage,
     );
 
     res.json(result);
-
   } catch (error) {
-
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
-
   }
-
 };
 
 module.exports = {
   applyJob,
   myApplications,
+  recruiterApplications,
   jobApplicants,
   withdraw,
-  moveStage
+  moveStage,
 };

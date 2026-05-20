@@ -12,10 +12,18 @@ router.get("/", protect, jobController.getJobs);
 
 router.get("/:id", protect, jobController.getJobById);
 
-router.get("/",protect, authorizeRoles("recruiter"), jobController.getRecruiterJobs);
+router.patch(
+  "/:id",
+  protect,
+  authorizeRoles("recruiter"),
+  jobController.updateJob,
+);
 
-router.patch("/:id",protect,authorizeRoles("recruiter"),jobController.updateJob,);
-
-router.delete("/:id",protect,authorizeRoles("recruiter"),jobController.deleteJob);
+router.delete(
+  "/:id",
+  protect,
+  authorizeRoles("recruiter"),
+  jobController.deleteJob,
+);
 
 module.exports = router;

@@ -7,7 +7,7 @@ const candidateProfileSchema = new mongoose.Schema({
   education: String,
   resumeUrl: String,
   location: String,
-  links: [String]
+  links: [String],
 });
 
 const userSchema = new mongoose.Schema(
@@ -15,38 +15,41 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
 
     passwordHash: {
       type: String,
-      required: true
+      required: true,
     },
 
     role: {
       type: String,
       enum: ["candidate", "recruiter", "admin"],
-      required: true
+      required: true,
     },
 
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Company"
+      ref: "Company",
     },
 
     fullName: {
       type: String,
-      required: true
+      required: true,
     },
     refreshToken: {
-        type: String
+      type: String,
+    },
+    resumeUrl: {
+      type: String,
     },
 
     designation: String,
 
-    candidateProfile: candidateProfileSchema
+    candidateProfile: candidateProfileSchema,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("User", userSchema);

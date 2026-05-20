@@ -30,9 +30,17 @@ export const sidebarMenus = {
       path: ROUTES.RECRUITER_APPLICANTS,
     },
     {
-        label: "Create Job",
-        path: ROUTES.RECRUITER_CREATE_JOB,
-      },
+      label: "Create Job",
+      path: ROUTES.RECRUITER_CREATE_JOB,
+    },
+    {
+      label: "Applications",
+      path: ROUTES.RECRUITER_APPLICATIONS,
+    },
+    {
+      label: "Analytics",
+      path: ROUTES.RECRUITER_ANALYTICS,
+    },
   ],
 
   candidate: [
@@ -47,6 +55,14 @@ export const sidebarMenus = {
     {
       label: "Profile",
       path: ROUTES.CANDIDATE_PROFILE,
+    },
+    {
+      label: "Browse Jobs",
+      path: ROUTES.CANDIDATE_BROWSE_JOBS,
+    },
+    {
+      label: "Applications",
+      path: ROUTES.CANDIDATE_APPLICATIONS,
     },
   ],
 };
