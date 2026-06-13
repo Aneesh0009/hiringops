@@ -78,6 +78,20 @@ const getRecruiterApplications = (recruiter, query) => {
   });
 };
 
+const getRecruiterApplicants = (recruiter, query) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+
+  return applicationRepository.getDistinctApplicantsByCompany(
+    recruiter.companyId,
+    {
+      search: query.search ?? "",
+      page,
+      limit,
+    },
+  );
+};
+
 const getApplicantsForJob = (jobId) =>
   applicationRepository.getApplicantsByJob(jobId);
 
@@ -153,6 +167,7 @@ module.exports = {
   applyToJob,
   getMyApplications,
   getRecruiterApplications,
+  getRecruiterApplicants,
   getApplicantsForJob,
   withdrawApplication,
   moveApplicationStage,

@@ -1,42 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const analyticsController = require("../controllers/analyticsController");
-const authMiddleware = require("../middleware/authMiddleware");
-const roleMiddleware = require("../middleware/roleMiddleware");
+const protect = require("../middleware/authMiddleware");
 
-router.get(
-  "/funnel",
-  authMiddleware,
-  roleMiddleware("admin", "recruiter"),
-  analyticsController.getHiringFunnel
-);
+router.use(protect);
 
-router.get(
-  "/monthly-applications",
-  authMiddleware,
-  roleMiddleware("admin", "recruiter"),
-  analyticsController.getApplicationsByMonth
-);
-
-router.get(
-  "/top-jobs",
-  authMiddleware,
-  roleMiddleware("admin", "recruiter"),
-  analyticsController.getTopJobs
-);
-
-router.get(
-  "/time-to-hire",
-  authMiddleware,
-  roleMiddleware("admin", "recruiter"),
-  analyticsController.getTimeToHire
-);
-
+router.get("/hiring-funnel", analyticsController.getHiringFunnel);
+router.get("/time-to-hire", analyticsController.getTimeToHire);
+router.get("/top-jobs", analyticsController.getTopJobs);
 router.get(
   "/recruiter-performance",
-  authMiddleware,
-  roleMiddleware("admin", "recruiter"),
-  analyticsController.getRecruiterPerformance
+  analyticsController.getRecruiterPerformance,
+);
+router.get(
+  "/applications-by-month",
+  analyticsController.getApplicationsByMonth,
 );
 
 module.exports = router;

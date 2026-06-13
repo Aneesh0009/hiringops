@@ -26,6 +26,13 @@ router.get(
 );
 
 router.get(
+  "/recruiter/applicants",
+  authMiddleware,
+  roleMiddleware("recruiter"),
+  applicationController.recruiterApplicants,
+);
+
+router.get(
   "/jobs/:jobId/applicants",
   authMiddleware,
   roleMiddleware("recruiter"),

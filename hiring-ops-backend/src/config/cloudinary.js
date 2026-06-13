@@ -1,5 +1,4 @@
-const cloudinary =
-  require("cloudinary").v2;
+const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
 
@@ -13,5 +12,4 @@ cloudinary.config({
     process.env.CLOUDINARY_SECRET,
 });
 
-module.exports =
-  cloudinary;
+module.exports = cloudinary;

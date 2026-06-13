@@ -56,3 +56,11 @@ module.exports = {
   getRecruiterPerformance,
   getApplicationsByMonth,
 };
+
+module.exports = {
+  getHiringFunnel,
+  getTimeToHire,
+  getTopJobs,
+  getRecruiterPerformance,
+  getApplicationsByMonth,
+};

@@ -2,9 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 
-const protect = require("../middlewares/authMiddleware");
+const protect = require("../middleware/authMiddleware");
 
-const upload = require("../middlewares/uploadMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 
 const { uploadResume } = require("../controllers/uploadController");
 

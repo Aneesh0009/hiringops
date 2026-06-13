@@ -27,10 +27,6 @@ const JobsPage = () => {
   );
 
   useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, statusFilter]);
-
-  useEffect(() => {
     dispatch(
       fetchJobs({
         search: debouncedSearch,
@@ -119,13 +115,19 @@ const JobsPage = () => {
             type="text"
             placeholder="Search jobs..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="border rounded-lg px-4 py-2 w-full sm:w-[300px]"
           />
 
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
             className="border rounded-lg px-4 py-2"
           >
             <option value="All">All Statuses</option>

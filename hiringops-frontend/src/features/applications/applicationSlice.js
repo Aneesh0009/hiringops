@@ -51,6 +51,25 @@ export const fetchApplications = createAsyncThunk(
   },
 );
 
+export const fetchRecruiterApplicants = createAsyncThunk(
+  "applications/fetchRecruiterApplicants",
+
+  async ({ search = "", page = 1, limit = 10 } = {}, thunkAPI) => {
+    try {
+      const query = buildQueryString({ search, page, limit });
+      const response = await API.get(
+        `/api/applications/recruiter/applicants${query}`,
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ?? "Failed to load applicants",
+      );
+    }
+  },
+);
+
 export const updateApplicationStage = createAsyncThunk(
   "applications/updateStage",
 
@@ -117,6 +136,24 @@ const applicationSlice = createSlice({
         };
       })
       .addCase(fetchApplications.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchRecruiterApplicants.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchRecruiterApplicants.fulfilled, (state, action) => {
+        state.loading = false;
+        state.applications = action.payload.applicants ?? [];
+        state.pagination = {
+          page: action.payload.page ?? 1,
+          limit: action.payload.limit ?? 10,
+          total: action.payload.total ?? 0,
+          totalPages: action.payload.totalPages ?? 1,
+        };
+      })
+      .addCase(fetchRecruiterApplicants.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

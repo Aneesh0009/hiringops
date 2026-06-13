@@ -8,7 +8,6 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require("compression");
 const hpp = require("hpp");
-const xss = require("xss-clean");
 const mongoSanitize = require("express-mongo-sanitize");
 
 const app = express();
@@ -24,31 +23,25 @@ const http = require("http");
 const { Server } = require("socket.io");
 const { initSocket } = require("./socket");
 
-dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 connectDB();
 app.use(cookieParser());
-app.use(cors({origin: process.env.CLIENT_URL,credentials: true,}),);
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 
 // SECURITY HEADERS
 app.use(helmet());
 // RATE LIMITING
-const limiter =
-  rateLimit({
-    windowMs : 15 * 60 * 1000,
-    max: 100,
-    message: "Too many requests from this IP, please try again after 15 minutes",
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: "Too many requests from this IP, please try again after 15 minutes",
 });
 app.use(limiter);
 // GZIP COMPRESSION
 app.use(compression());
 // PREVENT HTTP PARAM POLLUTION
 app.use(hpp());
-// PREVENT XSS
-app.use(xss());
-// PREVENT NOSQL INJECTION
-app.use(mongoSanitize());
-
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);

@@ -1,33 +1,19 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import {
-  fetchApplications,
-  updateApplicationStage,
-} from "../../features/applications/applicationSlice";
-import { APPLICATION_STAGES } from "../../constants/applicationStages";
+import { fetchRecruiterApplicants } from "../../features/applications/applicationSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 
 import Card from "../../components/ui/Card";
 import Table from "../../components/ui/Table";
 import Loader from "../../components/ui/Loader";
 import EmptyState from "../../components/ui/EmptyState";
-import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 
-const stageVariantMap = {
-  Applied: "info",
-  Screening: "warning",
-  Interview: "warning",
-  Offered: "success",
-  Rejected: "danger",
-};
-
-const ApplicationsPage = () => {
+const ApplicantsPage = () => {
   const dispatch = useDispatch();
 
   const [search, setSearch] = useState("");
-  const [stageFilter, setStageFilter] = useState("All");
   const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebounce(search, 400);
@@ -38,18 +24,13 @@ const ApplicationsPage = () => {
 
   useEffect(() => {
     dispatch(
-      fetchApplications({
+      fetchRecruiterApplicants({
         search: debouncedSearch,
-        stage: stageFilter,
         page,
         limit: 10,
       }),
     );
-  }, [dispatch, debouncedSearch, stageFilter, page]);
-
-  const handleStageChange = async (applicationId, stage) => {
-    await dispatch(updateApplicationStage({ applicationId, stage }));
-  };
+  }, [dispatch, debouncedSearch, page]);
 
   const columns = [
     {
@@ -58,51 +39,30 @@ const ApplicationsPage = () => {
       render: (app) => (
         <div>
           <p className="font-medium">
-            {app.candidateSnapshot?.fullName ?? "—"}
+            {app.candidateName ?? app.candidateSnapshot?.fullName ?? "—"}
           </p>
           <p className="text-sm text-gray-500">
-            {app.candidateSnapshot?.email ?? ""}
+            {app.candidateEmail ?? app.candidateSnapshot?.email ?? ""}
           </p>
         </div>
       ),
     },
     {
-      key: "job",
-      title: "Job",
-      render: (app) => app.jobId?.title ?? "—",
+      key: "applicationsCount",
+      title: "Applications",
+      render: (app) => app.applicationsCount ?? 0,
     },
     {
-      key: "stage",
-      title: "Stage",
-      render: (app) => (
-        <select
-          value={app.currentStage}
-          onChange={(e) => handleStageChange(app._id, e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm"
-        >
-          {APPLICATION_STAGES.map((stage) => (
-            <option key={stage} value={stage}>
-              {stage}
-            </option>
-          ))}
-        </select>
-      ),
+      key: "latestStage",
+      title: "Latest Stage",
+      render: (app) => app.latestStage ?? app.latestStatus ?? "—",
     },
     {
-      key: "status",
-      title: "Status",
-      render: (app) => (
-        <Badge variant={stageVariantMap[app.currentStage]}>
-          {app.currentStage}
-        </Badge>
-      ),
-    },
-    {
-      key: "appliedAt",
-      title: "Applied",
+      key: "lastApplied",
+      title: "Last Applied",
       render: (app) =>
-        app.appliedAt
-          ? new Date(app.appliedAt).toLocaleDateString()
+        (app.lastApplied ?? app.latestAppliedAt)
+          ? new Date(app.lastApplied ?? app.latestAppliedAt).toLocaleDateString()
           : "—",
     },
   ];
@@ -110,9 +70,9 @@ const ApplicationsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">Applications</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Applicants</h1>
         <p className="text-gray-500">
-          Search, filter by pipeline stage, and manage candidates
+          Review candidate activity and application progress across jobs
         </p>
       </div>
 
@@ -129,21 +89,6 @@ const ApplicationsPage = () => {
             className="border rounded-lg px-4 py-2 w-full sm:w-[300px]"
           />
 
-          <select
-            value={stageFilter}
-            onChange={(e) => {
-              setStageFilter(e.target.value);
-              setPage(1);
-            }}
-            className="border rounded-lg px-4 py-2"
-          >
-            <option value="All">All Stages</option>
-            {APPLICATION_STAGES.map((stage) => (
-              <option key={stage} value={stage}>
-                {stage}
-              </option>
-            ))}
-          </select>
         </div>
 
         {loading && <Loader />}
@@ -152,7 +97,7 @@ const ApplicationsPage = () => {
 
         {!loading && !error && applications.length === 0 && (
           <EmptyState
-            title="No Applications Found"
+            title="No Applicants Found"
             description="Try adjusting search or stage filters"
           />
         )}
@@ -195,4 +140,4 @@ const ApplicationsPage = () => {
   );
 };
 
-export default ApplicationsPage;
+export default ApplicantsPage;

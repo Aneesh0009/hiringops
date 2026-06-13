@@ -37,6 +37,19 @@ const recruiterApplications = async (req, res) => {
   }
 };
 
+const recruiterApplicants = async (req, res) => {
+  try {
+    const result = await applicationService.getRecruiterApplicants(
+      req.user,
+      req.query,
+    );
+
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 const jobApplicants = async (req, res) => {
   try {
     const applicants = await applicationService.getApplicantsForJob(
@@ -81,6 +94,7 @@ module.exports = {
   applyJob,
   myApplications,
   recruiterApplications,
+  recruiterApplicants,
   jobApplicants,
   withdraw,
   moveStage,

@@ -36,6 +36,60 @@ const getApplicantsByJob = (jobId) =>
     .populate("jobId", "title")
     .sort({ createdAt: -1 });
 
+const getDistinctApplicantsByCompany = async (companyId, options = {}) => {
+  const { search = "", page = 1, limit = 10 } = options;
+
+  const match = { companyId };
+
+  if (search.trim()) {
+    const regex = new RegExp(search.trim(), "i");
+    match.$or = [
+      { "candidateSnapshot.fullName": regex },
+      { "candidateSnapshot.email": regex },
+    ];
+  }
+
+  const basePipeline = [
+    { $match: match },
+    {
+      $group: {
+        _id: "$candidateId",
+        candidateName: { $first: "$candidateSnapshot.fullName" },
+        candidateEmail: { $first: "$candidateSnapshot.email" },
+        candidateSnapshot: { $first: "$candidateSnapshot" },
+        applicationsCount: { $sum: 1 },
+        latestStage: { $last: "$currentStage" },
+        lastApplied: { $max: "$appliedAt" },
+        latestStatus: { $last: "$currentStage" },
+        latestAppliedAt: { $max: "$appliedAt" },
+      },
+    },
+  ];
+
+  const [groupedApplicants, totalResult] = await Promise.all([
+    Application.aggregate([
+      ...basePipeline,
+      { $sort: { lastApplied: -1, latestAppliedAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ]),
+    Application.aggregate([
+      ...basePipeline,
+      { $count: "total" },
+    ]),
+  ]);
+
+  const total = totalResult[0]?.total ?? 0;
+
+  return {
+    applicants: groupedApplicants,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
+};
+
 const getApplicationsByCompany = async (companyId, options = {}) => {
   const {
     search = "",
@@ -88,6 +142,7 @@ module.exports = {
   updateApplicationStage,
   getApplicationsByCandidate,
   getApplicantsByJob,
+  getDistinctApplicantsByCompany,
   getApplicationsByCompany,
   deleteApplication,
 };
